@@ -1,0 +1,369 @@
+{% extends "layout.twig" %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tableau de bord</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item active">Tableau de bord</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Info boxes -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-home"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Biens immobiliers</span>
+                        <span class="info-box-number">{{ propertyCount }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-money-bill-wave"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Revenus ({{ "now"|date("Y") }})</span>
+                        <span class="info-box-number">{{ totalRevenues|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-file-invoice"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Dépenses ({{ "now"|date("Y") }})</span>
+                        <span class="info-box-number">{{ totalExpenses|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-chart-line"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Résultat net ({{ "now"|date("Y") }})</span>
+                        <span class="info-box-number">{{ netIncome|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main row -->
+        <div class="row">
+            <!-- Left col -->
+            <div class="col-md-8">
+                <!-- Revenue/Expense Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Revenus et dépenses ({{ "now"|date("Y") }})</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="revenueExpenseChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Properties -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Biens immobiliers récents</h3>
+                        <div class="card-tools">
+                            <a href="/Properties/list" class="btn btn-tool">
+                                <i class="fas fa-list"></i> Voir tous
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Adresse</th>
+                                    <th>Date d'acquisition</th>
+                                    <th>Prix d'achat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if properties|length > 0 %}
+                                    {% for property in properties %}
+                                    <tr>
+                                        <td>
+                                            <a href="/Properties/edit/{{ property.id }}">{{ property.name }}</a>
+                                        </td>
+                                        <td>{{ property.address }}</td>
+                                        <td>{{ property.acquisition_date|date('d/m/Y') }}</td>
+                                        <td>{{ property.acquisition_price|number_format(2, ',', ' ') }} €</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">Aucun bien immobilier trouvé.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right col -->
+            <div class="col-md-4">
+                <!-- Expense Breakdown -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Répartition des dépenses</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="expenseBreakdownChart" height="250"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Recent Revenues -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Revenus récents</h3>
+                        <div class="card-tools">
+                            <a href="/Revenues/list" class="btn btn-tool">
+                                <i class="fas fa-list"></i> Voir tous
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Catégorie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if revenues|length > 0 %}
+                                    {% for revenue in revenues %}
+                                    <tr>
+                                        <td>{{ revenue.revenue_date|date('d/m/Y') }}</td>
+                                        <td>{{ revenue.amount|number_format(2, ',', ' ') }} €</td>
+                                        <td>{{ revenue.category }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">Aucun revenu trouvé.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Recent Expenses -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Dépenses récentes</h3>
+                        <div class="card-tools">
+                            <a href="/Expenses/list" class="btn btn-tool">
+                                <i class="fas fa-list"></i> Voir toutes
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Catégorie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if expenses|length > 0 %}
+                                    {% for expense in expenses %}
+                                    <tr>
+                                        <td>{{ expense.expense_date|date('d/m/Y') }}</td>
+                                        <td>{{ expense.amount|number_format(2, ',', ' ') }} €</td>
+                                        <td>{{ expense.category }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">Aucune dépense trouvée.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    // Revenue/Expense Chart
+    const revenueExpenseChartCtx = document.getElementById('revenueExpenseChart').getContext('2d');
+    const monthlyData = {{ monthlyRevenues|raw }};
+    
+    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    
+    const revenueData = monthlyData.map(item => item.revenues);
+    const expenseData = monthlyData.map(item => item.expenses);
+    const profitData = monthlyData.map(item => item.revenues - item.expenses);
+    
+    const revenueExpenseChart = new Chart(revenueExpenseChartCtx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Revenus',
+                    backgroundColor: 'rgba(60,141,188,0.9)',
+                    borderColor: 'rgba(60,141,188,0.8)',
+                    pointRadius: false,
+                    pointColor: '#3b8bba',
+                    pointStrokeColor: 'rgba(60,141,188,1)',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(60,141,188,1)',
+                    data: revenueData
+                },
+                {
+                    label: 'Dépenses',
+                    backgroundColor: 'rgba(210, 214, 222, 1)',
+                    borderColor: 'rgba(210, 214, 222, 1)',
+                    pointRadius: false,
+                    pointColor: 'rgba(210, 214, 222, 1)',
+                    pointStrokeColor: '#c1c7d1',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(220,220,220,1)',
+                    data: expenseData
+                },
+                {
+                    label: 'Résultat',
+                    type: 'line',
+                    backgroundColor: 'rgba(60, 179, 113, 0.4)',
+                    borderColor: 'rgba(60, 179, 113, 1)',
+                    pointRadius: 3,
+                    pointColor: 'rgba(60, 179, 113, 1)',
+                    pointStrokeColor: '#fff',
+                    pointHighlightFill: '#fff',
+                    pointHighlightStroke: 'rgba(60, 179, 113, 1)',
+                    data: profitData
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        display: true
+                    }
+                }
+            }
+        }
+    });
+    
+    // Expense Breakdown Chart
+    const expenseBreakdownChartCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+    const expenseBreakdownData = {{ expenseBreakdown|raw }};
+    
+    // Map expense categories to user-friendly names
+    const categoryNames = {
+        'property_tax': 'Taxe foncière',
+        'insurance': 'Assurance',
+        'management_fees': 'Frais de gestion',
+        'maintenance': 'Entretien',
+        'accountant_fees': 'Honoraires comptable',
+        'bank_fees': 'Frais bancaires',
+        'loan_interest': 'Intérêts d\'emprunt',
+        'electricity': 'Électricité',
+        'water': 'Eau',
+        'gas': 'Gaz',
+        'internet': 'Internet',
+        'condo_fees': 'Charges de copropriété',
+        'travel': 'Déplacements',
+        'other': 'Autres'
+    };
+    
+    const expenseLabels = expenseBreakdownData.map(item => categoryNames[item.category] || item.category);
+    const expenseAmounts = expenseBreakdownData.map(item => item.total);
+    
+    // Generate colors
+    const generateColors = (count) => {
+        const baseColors = [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 99, 71)',
+            'rgb(0, 128, 128)',
+            'rgb(128, 0, 128)',
+            'rgb(0, 128, 0)',
+            'rgb(128, 128, 0)',
+            'rgb(0, 0, 128)',
+            'rgb(220, 20, 60)',
+            'rgb(0, 139, 139)'
+        ];
+        
+        return baseColors.slice(0, count);
+    };
+    
+    const expenseColors = generateColors(expenseLabels.length);
+    
+    const expenseBreakdownChart = new Chart(expenseBreakdownChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: expenseLabels,
+            datasets: [{
+                data: expenseAmounts,
+                backgroundColor: expenseColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

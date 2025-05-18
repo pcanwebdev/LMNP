@@ -1,0 +1,330 @@
+{% extends "layout.twig" %}
+
+{% block title %}Gestion des Revenus{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Revenus</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">Revenus</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Filters -->
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">Filtres</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" action="/Revenues/list">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Bien immobilier</label>
+                                <select class="form-control" name="property_id">
+                                    <option value="">Tous les biens</option>
+                                    {% for property in properties %}
+                                        <option value="{{ property.id }}" {% if filter.property_id == property.id %}selected{% endif %}>
+                                            {{ property.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Année</label>
+                                <select class="form-control" name="year">
+                                    {% for y in range(("now"|date("Y"))-5, ("now"|date("Y"))) %}
+                                        <option value="{{ y }}" {% if filter.year == y %}selected{% endif %}>{{ y }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Mois</label>
+                                <select class="form-control" name="month">
+                                    <option value="">Tous les mois</option>
+                                    <option value="1" {% if filter.month == '1' %}selected{% endif %}>Janvier</option>
+                                    <option value="2" {% if filter.month == '2' %}selected{% endif %}>Février</option>
+                                    <option value="3" {% if filter.month == '3' %}selected{% endif %}>Mars</option>
+                                    <option value="4" {% if filter.month == '4' %}selected{% endif %}>Avril</option>
+                                    <option value="5" {% if filter.month == '5' %}selected{% endif %}>Mai</option>
+                                    <option value="6" {% if filter.month == '6' %}selected{% endif %}>Juin</option>
+                                    <option value="7" {% if filter.month == '7' %}selected{% endif %}>Juillet</option>
+                                    <option value="8" {% if filter.month == '8' %}selected{% endif %}>Août</option>
+                                    <option value="9" {% if filter.month == '9' %}selected{% endif %}>Septembre</option>
+                                    <option value="10" {% if filter.month == '10' %}selected{% endif %}>Octobre</option>
+                                    <option value="11" {% if filter.month == '11' %}selected{% endif %}>Novembre</option>
+                                    <option value="12" {% if filter.month == '12' %}selected{% endif %}>Décembre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Catégorie</label>
+                                <select class="form-control" name="category">
+                                    <option value="">Toutes les catégories</option>
+                                    {% for code, label in categories %}
+                                        <option value="{{ code }}" {% if filter.category == code %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                            <a href="/Revenues/list" class="btn btn-default">
+                                <i class="fas fa-redo"></i> Réinitialiser
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Revenue list card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Liste des revenus</h3>
+                <div class="card-tools">
+                    <a href="/Revenues/add" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Ajouter un revenu
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if revenues|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Bien</th>
+                                    <th>Catégorie</th>
+                                    <th>Description</th>
+                                    <th>Montant</th>
+                                    <th>Récurrent</th>
+                                    <th style="width: 15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for revenue in revenues %}
+                                    <tr>
+                                        <td>{{ revenue.revenue_date|date('d/m/Y') }}</td>
+                                        <td>{{ revenue.property_name }}</td>
+                                        <td>
+                                            {% if revenue.category == 'rent' %}
+                                                Loyer
+                                            {% elseif revenue.category == 'deposit' %}
+                                                Dépôt de garantie
+                                            {% elseif revenue.category == 'service_charges' %}
+                                                Charges locatives
+                                            {% else %}
+                                                Autres revenus
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ revenue.description }}</td>
+                                        <td class="text-right">{{ revenue.amount|number_format(2, ',', ' ') }} €</td>
+                                        <td class="text-center">
+                                            {% if revenue.recurring %}
+                                                <span class="badge badge-info">
+                                                    {% if revenue.recurring_frequency == 'monthly' %}
+                                                        Mensuel
+                                                    {% elseif revenue.recurring_frequency == 'quarterly' %}
+                                                        Trimestriel
+                                                    {% elseif revenue.recurring_frequency == 'semi_annual' %}
+                                                        Semestriel
+                                                    {% elseif revenue.recurring_frequency == 'annual' %}
+                                                        Annuel
+                                                    {% endif %}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-secondary">Non</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/Revenues/edit/{{ revenue.id }}" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/Revenues/delete/{{ revenue.id }}" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4" class="text-right">Total:</th>
+                                    <th class="text-right">{{ total|number_format(2, ',', ' ') }} €</th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info"></i> Aucun revenu</h5>
+                        Aucun revenu ne correspond à vos critères de recherche.
+                        <a href="/Revenues/add" class="btn btn-success btn-sm ml-2">
+                            <i class="fas fa-plus"></i> Ajouter un revenu
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Monthly Summary -->
+        {% if monthlySummary|length > 0 %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Résumé mensuel ({{ filter.year }})</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart">
+                    <canvas id="revenueChart" height="250"></canvas>
+                </div>
+                <div class="table-responsive mt-4">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Mois</th>
+                                <th>Nombre</th>
+                                <th>Total</th>
+                                <th>Moyenne</th>
+                                <th>Minimum</th>
+                                <th>Maximum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for summary in monthlySummary %}
+                                <tr>
+                                    <td>
+                                        {% if summary.month == 1 %}Janvier
+                                        {% elseif summary.month == 2 %}Février
+                                        {% elseif summary.month == 3 %}Mars
+                                        {% elseif summary.month == 4 %}Avril
+                                        {% elseif summary.month == 5 %}Mai
+                                        {% elseif summary.month == 6 %}Juin
+                                        {% elseif summary.month == 7 %}Juillet
+                                        {% elseif summary.month == 8 %}Août
+                                        {% elseif summary.month == 9 %}Septembre
+                                        {% elseif summary.month == 10 %}Octobre
+                                        {% elseif summary.month == 11 %}Novembre
+                                        {% elseif summary.month == 12 %}Décembre
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ summary.count }}</td>
+                                    <td>{{ summary.total|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ summary.average|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ summary.minimum|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ summary.maximum|number_format(2, ',', ' ') }} €</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    {% if monthlySummary|length > 0 %}
+    // Revenue chart
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    
+    // Prepare data
+    const months = [
+        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+        'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+    
+    const monthlyData = [
+        {% for summary in monthlySummary %}
+            {
+                month: {{ summary.month }},
+                total: {{ summary.total }}
+            },
+        {% endfor %}
+    ];
+    
+    // Initialize all months with 0
+    const chartData = Array(12).fill(0);
+    
+    // Fill with actual data
+    monthlyData.forEach(item => {
+        chartData[item.month - 1] = item.total;
+    });
+    
+    const revenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenus mensuels (€)',
+                data: chartData,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('fr-FR', { 
+                                    style: 'currency', 
+                                    currency: 'EUR' 
+                                }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

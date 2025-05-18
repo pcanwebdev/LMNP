@@ -1,0 +1,175 @@
+{% extends "layout.twig" %}
+
+{% block title %}
+    {% if action == 'add' %}
+        Ajouter un bien immobilier
+    {% else %}
+        Modifier un bien immobilier
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">
+                    {% if action == 'add' %}
+                        Ajouter un bien immobilier
+                    {% else %}
+                        Modifier un bien immobilier
+                    {% endif %}
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item"><a href="/Properties/list">Biens Immobiliers</a></li>
+                    <li class="breadcrumb-item active">
+                        {% if action == 'add' %}Ajouter{% else %}Modifier{% endif %}
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            {% if action == 'add' %}
+                                Informations du nouveau bien
+                            {% else %}
+                                Modification de {{ property.name }}
+                            {% endif %}
+                        </h3>
+                    </div>
+                    
+                    <form action="/Properties/save" method="post">
+                        {% if action == 'edit' %}
+                            <input type="hidden" name="id" value="{{ property.id }}">
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Name -->
+                                    <div class="form-group">
+                                        <label for="name">Nom du bien <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               value="{{ property.name }}" required>
+                                        <small class="form-text text-muted">Nom permettant d'identifier facilement le bien</small>
+                                    </div>
+                                    
+                                    <!-- Address -->
+                                    <div class="form-group">
+                                        <label for="address">Adresse <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ property.address }}</textarea>
+                                    </div>
+                                    
+                                    <!-- Acquisition Date -->
+                                    <div class="form-group">
+                                        <label for="acquisition_date">Date d'acquisition <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="acquisition_date" name="acquisition_date" 
+                                               value="{{ property.acquisition_date }}" required>
+                                    </div>
+                                    
+                                    <!-- Acquisition Price -->
+                                    <div class="form-group">
+                                        <label for="acquisition_price">Prix d'acquisition (€) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="acquisition_price" name="acquisition_price" 
+                                               value="{{ property.acquisition_price }}" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <!-- Ownership Percentage -->
+                                    <div class="form-group">
+                                        <label for="ownership_percentage">Pourcentage de détention (%)</label>
+                                        <input type="number" class="form-control" id="ownership_percentage" name="ownership_percentage" 
+                                               value="{{ property.ownership_percentage }}" step="0.01" min="0" max="100">
+                                        <small class="form-text text-muted">Pour les biens en indivision</small>
+                                    </div>
+                                    
+                                    <!-- Property Type -->
+                                    <div class="form-group">
+                                        <label for="property_type">Type de bien</label>
+                                        <select class="form-control" id="property_type" name="property_type">
+                                            {% for type, label in propertyTypes %}
+                                                <option value="{{ type }}" {% if property.property_type == type %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Status -->
+                                    <div class="form-group">
+                                        <label for="status">Statut</label>
+                                        <select class="form-control" id="status" name="status">
+                                            <option value="active" {% if property.status == 'active' %}selected{% endif %}>Actif</option>
+                                            <option value="inactive" {% if property.status == 'inactive' %}selected{% endif %}>Inactif</option>
+                                            <option value="sold" {% if property.status == 'sold' %}selected{% endif %}>Vendu</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Notes -->
+                                    <div class="form-group">
+                                        <label for="notes">Notes</label>
+                                        <textarea class="form-control" id="notes" name="notes" rows="3">{{ property.notes }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if action == 'add' %}
+                            <!-- Create Depreciation Assets -->
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" type="checkbox" id="create_depreciation" name="create_depreciation" value="yes" checked>
+                                    <label for="create_depreciation" class="custom-control-label">Créer automatiquement les amortissements</label>
+                                </div>
+                                <small class="form-text text-muted">Crée automatiquement un amortissement pour le bâtiment (90%) et le mobilier (10%)</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                {% if action == 'add' %}
+                                    <i class="fas fa-plus"></i> Ajouter
+                                {% else %}
+                                    <i class="fas fa-save"></i> Enregistrer
+                                {% endif %}
+                            </button>
+                            <a href="/Properties/list" class="btn btn-default">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Validate form before submission
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const name = document.getElementById('name').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const acquisitionDate = document.getElementById('acquisition_date').value;
+        const acquisitionPrice = parseFloat(document.getElementById('acquisition_price').value);
+        
+        if (!name || !address || !acquisitionDate || isNaN(acquisitionPrice) || acquisitionPrice <= 0) {
+            event.preventDefault();
+            alert('Veuillez remplir tous les champs obligatoires avec des valeurs valides.');
+        }
+    });
+</script>
+{% endblock %}

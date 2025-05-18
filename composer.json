@@ -1,0 +1,7 @@
+{
+    "require": {
+        "composer/composer": "^2.8",
+        "twig/twig": "^3.21",
+        "symfony/yaml": "^7.2"
+    }
+}

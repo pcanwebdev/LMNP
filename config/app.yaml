@@ -1,0 +1,8 @@
+name: 'LMNP Accounting'
+version: 1.0.0
+environment: development
+debug: true
+timezone: Europe/Paris
+locale: fr_FR
+secret: 6ebdfa5e861ec0a3654c031c9737a9b29e994e71620c335382d8b8f490b02689
+upload_dir: /home/runner/workspace/uploads

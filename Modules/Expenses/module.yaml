@@ -1,0 +1,28 @@
+# Expenses Module Configuration
+
+name: Expenses
+title: Dépenses
+description: Module de gestion des dépenses locatives
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+  - Finance/Properties
+
+# Menu configuration
+menu:
+  - title: Dépenses
+    icon: fas fa-file-invoice
+    route: /Expenses/list
+    order: 30
+
+# Dashboard widgets
+dashboard_widgets:
+  - name: expenses
+    title: Dépenses
+    description: Liste des dépenses récentes
+    icon: fas fa-file-invoice
+    route: /Expenses/list
+    order: 30

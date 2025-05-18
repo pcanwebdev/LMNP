@@ -1,0 +1,28 @@
+# Revenues Module Configuration
+
+name: Revenues
+title: Revenus
+description: Module de gestion des revenus locatifs
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+  - Finance/Properties
+
+# Menu configuration
+menu:
+  - title: Revenus
+    icon: fas fa-money-bill-wave
+    route: /Revenues/list
+    order: 20
+
+# Dashboard widgets
+dashboard_widgets:
+  - name: revenues
+    title: Revenus
+    description: Liste des revenus récents
+    icon: fas fa-money-bill-wave
+    route: /Revenues/list
+    order: 20

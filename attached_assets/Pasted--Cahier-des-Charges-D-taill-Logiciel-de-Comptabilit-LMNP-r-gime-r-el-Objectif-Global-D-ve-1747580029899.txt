@@ -1,0 +1,186 @@
+📘 Cahier des Charges Détaillé – Logiciel de Comptabilité LMNP (régime réel)
+🎯 Objectif Global
+Développer un logiciel de comptabilité modulaire pour les loueurs en meublé non professionnels (LMNP) au régime réel, non soumis à la TVA, permettant de suivre les recettes et charges, gérer les amortissements et produire les documents fiscaux nécessaires.
+1. Architecture Technique
+🔹 Architecture Modulaire Ultra-Flexible
+•	Système de Modules Complets : Conception d'une architecture ultra-modulaire où chaque fonctionnalité est encapsulée dans un module indépendant permettant la réutilisation du Core pour un autre développement d'une application
+•	Structure de Modules : 
+o	Modules de base (dashboard, user, settings, properties, etc.), modules communs à toute application WEB
+o	Modules complémentaires dans des dossiers séparés, modules spécifiques pour notre cas LMNP
+•	Routage Automatique : 
+o	Format standardisé : /Module/action/paramètre ou autres structure standardisé permettant la gestion ultra-flexible des routes
+o	Routing automatisé basé sur la structure des dossiers
+🔹 Stack Technique
+•	Backend :
+o	PHP 8.1 minimum (obligatoire)
+o	MVC personnalisé ultra-modulaire
+o	Architecture orientée services
+o	Moteur de rendu TWIG
+o	Moteur de configuration YAML
+o	Support de création dynamique de formulaire ou de page statique en YAML/TWIG/MARDOWN
+•	Base de Données :
+o	MySQL 8+ (préférentiel)
+o	Couche d'abstraction pour supporter plusieurs types de BDD
+o	Modèle relationnel optimisé par module
+•	Frontend :
+o	HTML5/CSS3
+o	Bootstrap avec thème AdminLTE
+o	JavaScript vanilla
+o	Composants modulaires réutilisables
+🔹 Organisation du Code
+•	Structure par Module :
+/Modules/
+  /Core/
+    /Dashboard/
+    /User/
+    /Settings/
+  /Finance/
+    /Properties/
+    /Revenues/
+    /Expenses/
+  /Accounting/
+    /Depreciation/
+    /TaxForms/
+    /Reports/
+•  Structure Interne d'un Module :
+/ModuleX/
+  /Controllers/
+  /Models/
+  /Views/
+  /Services/
+  /Config/
+  /Assets/
+  /Lang/
+  module.yaml (définition et configuration)
+2. Fonctionnalités Principales
+🔹 Modules de Base
+🔸 Module Dashboard
+•	Tableau de bord personnalisable suivant les informations provenant des modules
+•	Widgets configurables par l'utilisateur 
+•	Navigation rapide vers les fonctionnalités principales provenant des modules
+🔸 Module User
+•	Gestion des utilisateurs
+•	Profils et préférences
+•	Système d'authentification sécurisé
+•	Gestion des rôles et permissions
+🔸 Module Settings
+•	Configuration globale du système
+•	Paramètres de l'application
+•	Personnalisation de l'interface
+•	Gestion des options de modules
+🔹 Modules Personnalisés :
+🔸 Module Finance
+🔸 Module Properties (Gestion des biens)
+•	Création et gestion complète des fiches de biens immobiliers
+•	Caractéristiques détaillées (adresse, date d'acquisition, prix d'achat)
+•	Gestion des quotes-parts en indivision
+•	Catégorisation des biens selon leur régime fiscal
+•	Support multi-biens par utilisateur
+🔸 Module Revenues (Recettes)
+•	Saisie des loyers et revenus locatifs
+•	Gestion des charges locatives
+•	Système de génération automatique des loyers récurrents
+•	Historique et suivi mensuel/annuel des revenus
+•	Alertes en cas d'irrégularités
+🔸 Module Expenses (Charges)
+•	Saisie et catégorisation des charges déductibles
+•	Gestion des justificatifs (upload de PDF, images)
+•	Ventilation des charges par bien
+•	Suivi des charges récurrentes
+•	Tableaux récapitulatifs par période et catégorie
+🔹 Modules Accounting
+🔸 Module Depreciation (Amortissements)
+•	Configuration des règles d'amortissement
+•	Calcul automatique des amortissements: 
+o	Immobilier (20-30 ans)
+o	Mobilier (5-10 ans)
+o	Travaux (selon nature)
+•	Gestion de la réserve d'amortissement non déduite
+•	Tableaux d'amortissements pluriannuels
+•	Gestion des reports d'amortissements
+🔸 Module TaxForms (Déclarations fiscales)
+•	Génération automatique des formulaires fiscaux : 
+o	2031 (bénéfices industriels)
+o	2033-A à 2033-E (annexes)
+•	Exports aux formats requis (PDF, XML, EFI, EDI, EDI-TDFC)
+•	Validation des données avant soumission
+•	Historique des déclarations générées
+🔸 Module Reports (Rapports)
+•	Tableaux de synthèse financière
+•	Résumé par année fiscale et par bien
+•	Visualisation des données via graphiques
+•	Balance des recettes/charges
+•	États financiers personnalisables
+•	Exports multi-formats (PDF, CSV, Excel)
+3. Interface Utilisateur
+🔹 Design & Ergonomie
+•	Interface responsive basée sur Bootstrap et AdminLTE
+•	Design professionnel et épuré
+•	Navigation intuitive entre les modules
+•	Système de mode clair/sombre
+•	Dashboard personnalisable
+•	Tableaux et formulaires standardisés
+•	Expérience utilisateur cohérente entre modules
+🔹 Fonctionnalités Transversales
+•	Recherche globale et filtres avancés
+•	Système de notifications
+•	Aide contextuelle par fonctionnalité
+•	Tutoriels intégrés
+•	Breadcrumbs pour la navigation
+4. Sécurité & Protection des Données
+🔹 Sécurité
+•	Authentification robuste
+•	Sessions sécurisées
+•	Protection contre les attaques classiques (CSRF, XSS, etc.)
+•	Validation des données à tous les niveaux
+•	Journalisation des actions sensibles
+•	Chiffrement des données sensibles
+🔹 Sauvegarde & Récupération
+•	Système de sauvegarde automatique quotidienne
+•	Exports manuels des données
+•	Historique des modifications
+•	Système de restauration
+5. Performance & Extensibilité
+🔹 Optimisation
+•	Mise en cache des données fréquemment utilisées
+•	Chargement optimisé des ressources
+•	Pagination des résultats volumineux
+•	Requêtes SQL optimisées
+•	Chargement modulaire des scripts et styles
+🔹 Extensibilité
+•	Système de plugins pour fonctionnalités additionnelles
+•	API interne pour communication inter-modules
+•	Possibilité d'ajouter facilement de nouveaux modules
+•	Configuration extensible via fichiers de configuration
+6. Feuille de Route de Développement
+🔹 Phase 1: Architecture Fondamentale
+•	Développement du framework modulaire
+•	Implémentation du système de routage automatique
+•	Création de la couche d'abstraction de base de données
+•	Mise en place des modules de base (Dashboard, User, Settings)
+🔹 Phase 2: Modules spécifique
+•	Implémentation du module Properties
+•	Développement des modules Revenues et Expenses
+•	Intégration des uploads de justificatifs
+•	Mise en place des tableaux de synthèse
+•	Développement du module Depreciation
+•	Implémentation des règles fiscales LMNP
+•	Création du module TaxForms
+•	Générateur de formulaires fiscaux
+🔹 Phase 3: Modules Avancées
+•	Marketplace de modules complémentaires
+•	Outil de génération de modules personnalisés
+•	Interface avancée de configuration des modules
+•	Module API pour intégrations tierces
+•	Support multi-utilisateurs avec permissions avancées
+•	Système de notification automatique pour échéances fiscales
+🔹 Phase 4: Test et production
+•	Intégration complète des modules
+•	Tests approfondis avec données réelles
+•	Optimisation des performances
+•	Documentation utilisateur et technique
+
+7. Aspects Légaux & Conformité
+•	Conformité RGPD pour les données personnelles
+•	Mise à jour des règles fiscales en fonction des évolutions législatives
+•	Conformité avec les formats de déclaration électronique actuels

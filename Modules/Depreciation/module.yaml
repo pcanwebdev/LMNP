@@ -1,0 +1,28 @@
+# Depreciation Module Configuration
+
+name: Depreciation
+title: Amortissements
+description: Module de gestion des amortissements des actifs immobiliers et mobiliers
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+  - Finance/Properties
+
+# Menu configuration
+menu:
+  - title: Amortissements
+    icon: fas fa-calculator
+    route: /Depreciation/list
+    order: 40
+
+# Dashboard widgets
+dashboard_widgets:
+  - name: depreciation
+    title: Amortissements
+    description: Résumé des amortissements
+    icon: fas fa-calculator
+    route: /Depreciation/list
+    order: 40

@@ -1,0 +1,149 @@
+{% extends "layout.twig" %}
+
+{% block title %}Paramètres{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Paramètres</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">Paramètres</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Paramètres généraux</h3>
+                    </div>
+                    
+                    <form action="/Settings/save" method="post">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <!-- Theme -->
+                                    <div class="form-group">
+                                        <label>Thème</label>
+                                        <select class="form-control" name="theme">
+                                            <option value="light" {% if settings.theme == 'light' %}selected{% endif %}>Clair</option>
+                                            <option value="dark" {% if settings.theme == 'dark' %}selected{% endif %}>Sombre</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Currency -->
+                                    <div class="form-group">
+                                        <label>Devise</label>
+                                        <select class="form-control" name="currency">
+                                            <option value="EUR" {% if settings.currency == 'EUR' %}selected{% endif %}>Euro (€)</option>
+                                            <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>Dollar ($)</option>
+                                            <option value="GBP" {% if settings.currency == 'GBP' %}selected{% endif %}>Livre Sterling (£)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Date Format -->
+                                    <div class="form-group">
+                                        <label>Format de date</label>
+                                        <select class="form-control" name="date_format">
+                                            <option value="d/m/Y" {% if settings.date_format == 'd/m/Y' %}selected{% endif %}>31/12/2023</option>
+                                            <option value="Y-m-d" {% if settings.date_format == 'Y-m-d' %}selected{% endif %}>2023-12-31</option>
+                                            <option value="m/d/Y" {% if settings.date_format == 'm/d/Y' %}selected{% endif %}>12/31/2023</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <!-- Fiscal Year Start -->
+                                    <div class="form-group">
+                                        <label>Début de l'année fiscale</label>
+                                        <input type="text" class="form-control" name="fiscal_year_start" 
+                                               value="{{ settings.fiscal_year_start }}" 
+                                               pattern="[0-9]{2}-[0-9]{2}" 
+                                               placeholder="MM-DD">
+                                        <small class="form-text text-muted">Format: MM-JJ (exemple: 01-01 pour le 1er janvier)</small>
+                                    </div>
+                                    
+                                    <!-- Items Per Page -->
+                                    <div class="form-group">
+                                        <label>Éléments par page</label>
+                                        <input type="number" class="form-control" name="items_per_page" 
+                                               value="{{ settings.items_per_page }}" min="5" max="100">
+                                    </div>
+                                    
+                                    <!-- Dashboard Widgets -->
+                                    <div class="form-group">
+                                        <label>Widgets du tableau de bord</label>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_summary" 
+                                                   name="dashboard_widgets[]" value="summary"
+                                                   {% if 'summary' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_summary">Résumé</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_properties" 
+                                                   name="dashboard_widgets[]" value="properties"
+                                                   {% if 'properties' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_properties">Biens immobiliers</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_revenues" 
+                                                   name="dashboard_widgets[]" value="revenues"
+                                                   {% if 'revenues' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_revenues">Revenus</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_expenses" 
+                                                   name="dashboard_widgets[]" value="expenses"
+                                                   {% if 'expenses' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_expenses">Dépenses</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_chart_monthly" 
+                                                   name="dashboard_widgets[]" value="chart_monthly"
+                                                   {% if 'chart_monthly' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_chart_monthly">Graphique mensuel</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="widget_chart_breakdown" 
+                                                   name="dashboard_widgets[]" value="chart_breakdown"
+                                                   {% if 'chart_breakdown' in settings.dashboard_widgets %}checked{% endif %}>
+                                            <label class="custom-control-label" for="widget_chart_breakdown">Répartition des dépenses</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Ensure at least one dashboard widget is selected
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const checkboxes = document.querySelectorAll('input[name="dashboard_widgets[]"]:checked');
+        if (checkboxes.length === 0) {
+            event.preventDefault();
+            alert('Veuillez sélectionner au moins un widget pour le tableau de bord.');
+        }
+    });
+</script>
+{% endblock %}

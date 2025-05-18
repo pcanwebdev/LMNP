@@ -1,0 +1,211 @@
+/* 
+ * LMNP Accounting System - Main CSS File
+ * This file contains custom styles for the application
+ */
+
+/* Global styles */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 14px;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #222;
+    color: #f8f9fa;
+}
+
+body.dark-mode .content-wrapper {
+    background-color: #333;
+}
+
+body.dark-mode .card {
+    background-color: #444;
+    color: #f8f9fa;
+}
+
+body.dark-mode .card-header {
+    background-color: #333;
+}
+
+body.dark-mode .table {
+    color: #f8f9fa;
+}
+
+/* Custom component styling */
+
+/* Card shadows */
+.card {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Dashboard widgets */
+.info-box {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Table styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--primary-color);
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-input:focus ~ .custom-file-label {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Button styles */
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* Progress bar styles */
+.progress {
+    height: 20px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    line-height: 20px;
+    font-weight: 600;
+}
+
+/* Custom badge styles */
+.badge {
+    padding: 0.4em 0.6em;
+    font-weight: 600;
+    border-radius: 4px;
+}
+
+/* Chart containers */
+.chart {
+    position: relative;
+    height: 300px;
+}
+
+/* Receipt preview */
+.receipt-preview {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Login and register pages */
+.login-page, .register-page {
+    background: linear-gradient(to bottom right, #007bff, #00c6ff);
+}
+
+.login-box, .register-box {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.login-card-body, .register-card-body {
+    border-radius: 8px;
+}
+
+.login-logo, .register-logo {
+    margin-bottom: 20px;
+    color: white;
+}
+
+.login-logo a, .register-logo a {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .info-box {
+        margin-bottom: 15px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+        background-color: white !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #333 !important;
+    }
+    
+    .table {
+        width: 100% !important;
+    }
+    
+    .table td, .table th {
+        background-color: white !important;
+        color: black !important;
+    }
+}

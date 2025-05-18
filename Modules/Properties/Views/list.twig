@@ -1,0 +1,158 @@
+{% extends "layout.twig" %}
+
+{% block title %}Gestion des Biens Immobiliers{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Biens Immobiliers</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">Biens Immobiliers</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Property list card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Liste des biens immobiliers</h3>
+                <div class="card-tools">
+                    <a href="/Properties/add" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Ajouter un bien
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if properties|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%">Nom</th>
+                                    <th style="width: 25%">Adresse</th>
+                                    <th>Date d'acquisition</th>
+                                    <th>Prix d'achat</th>
+                                    <th>% Détenue</th>
+                                    <th>Type</th>
+                                    <th>Statut</th>
+                                    <th style="width: 15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for property in properties %}
+                                    <tr>
+                                        <td>{{ property.name }}</td>
+                                        <td>{{ property.address }}</td>
+                                        <td>{{ property.acquisition_date|date('d/m/Y') }}</td>
+                                        <td>{{ property.acquisition_price|number_format(2, ',', ' ') }} €</td>
+                                        <td>{{ property.ownership_percentage }} %</td>
+                                        <td>
+                                            {% if property.property_type == 'apartment' %}
+                                                Appartement
+                                            {% elseif property.property_type == 'house' %}
+                                                Maison
+                                            {% elseif property.property_type == 'commercial' %}
+                                                Local commercial
+                                            {% elseif property.property_type == 'land' %}
+                                                Terrain
+                                            {% else %}
+                                                Autre
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if property.status == 'active' %}
+                                                <span class="badge badge-success">Actif</span>
+                                            {% elseif property.status == 'sold' %}
+                                                <span class="badge badge-danger">Vendu</span>
+                                            {% elseif property.status == 'inactive' %}
+                                                <span class="badge badge-warning">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/Properties/edit/{{ property.id }}" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/Revenues/list?property_id={{ property.id }}" class="btn btn-sm btn-success" title="Revenus">
+                                                    <i class="fas fa-money-bill"></i>
+                                                </a>
+                                                <a href="/Expenses/list?property_id={{ property.id }}" class="btn btn-sm btn-warning" title="Dépenses">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </a>
+                                                <a href="/Properties/delete/{{ property.id }}" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info"></i> Aucun bien immobilier</h5>
+                        Vous n'avez pas encore ajouté de bien immobilier. 
+                        <a href="/Properties/add" class="btn btn-primary btn-sm ml-2">
+                            <i class="fas fa-plus"></i> Ajouter un bien
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if properties|length > 0 %}
+        <!-- Financial Summary -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Synthèse financière ({{ "now"|date("Y") }})</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Bien</th>
+                                <th>Revenus</th>
+                                <th>Dépenses</th>
+                                <th>Résultat</th>
+                                <th>Rendement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for property in properties %}
+                                <tr>
+                                    <td>{{ property.name }}</td>
+                                    <td class="text-success">
+                                        {{ (property.total_revenue ?? 0)|number_format(2, ',', ' ') }} €
+                                    </td>
+                                    <td class="text-danger">
+                                        {{ (property.total_expense ?? 0)|number_format(2, ',', ' ') }} €
+                                    </td>
+                                    <td class="{% if (property.net_income ?? 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        {{ (property.net_income ?? 0)|number_format(2, ',', ' ') }} €
+                                    </td>
+                                    <td>
+                                        {% set yield = property.acquisition_price > 0 ? ((property.net_income ?? 0) / property.acquisition_price * 100) : 0 %}
+                                        {{ yield|number_format(2, ',', ' ') }} %
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

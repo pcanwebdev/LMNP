@@ -1,0 +1,18 @@
+# Settings Module Configuration
+
+name: Settings
+title: Paramètres
+description: Module de gestion des paramètres de l'application
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+
+# Menu configuration
+menu:
+  - title: Paramètres
+    icon: fas fa-cog
+    route: /Settings
+    order: 90

@@ -1,0 +1,17 @@
+# Dashboard Module Configuration
+
+name: Dashboard
+title: Tableau de bord
+description: Module principal de tableau de bord
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies: []
+
+# Menu configuration
+menu:
+  - title: Tableau de bord
+    icon: fas fa-tachometer-alt
+    route: /Dashboard
+    order: 10

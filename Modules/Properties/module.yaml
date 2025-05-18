@@ -1,0 +1,27 @@
+# Properties Module Configuration
+
+name: Properties
+title: Biens Immobiliers
+description: Module de gestion des biens immobiliers
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+
+# Menu configuration
+menu:
+  - title: Biens Immobiliers
+    icon: fas fa-home
+    route: /Properties/list
+    order: 10
+
+# Dashboard widgets
+dashboard_widgets:
+  - name: properties
+    title: Biens immobiliers
+    description: Liste des biens immobiliers
+    icon: fas fa-home
+    route: /Properties/list
+    order: 10

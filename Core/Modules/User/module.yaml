@@ -1,0 +1,18 @@
+# User Module Configuration
+
+name: User
+title: Utilisateurs
+description: Module de gestion des utilisateurs
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/Dashboard
+
+# Menu configuration
+menu:
+  - title: Profil Utilisateur
+    icon: fas fa-user
+    route: /User/profile
+    order: 90

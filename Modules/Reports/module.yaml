@@ -1,0 +1,31 @@
+# Reports Module Configuration
+
+name: Reports
+title: Rapports Financiers
+description: Module de génération de rapports financiers et fiscaux
+version: 1.0.0
+author: LMNP Accounting System
+
+# Module dependencies
+dependencies:
+  - Core/User
+  - Finance/Properties
+  - Finance/Revenues
+  - Finance/Expenses
+  - Accounting/Depreciation
+
+# Menu configuration
+menu:
+  - title: Rapports
+    icon: fas fa-file-alt
+    route: /Reports/list
+    order: 50
+
+# Dashboard widgets
+dashboard_widgets:
+  - name: reports
+    title: Rapports
+    description: Rapports financiers
+    icon: fas fa-file-alt
+    route: /Reports/list
+    order: 50

@@ -1,0 +1,6 @@
+enabled:
+  - Finance/Properties
+  - Finance/Revenues
+  - Finance/Expenses
+  - Accounting/Depreciation
+  - Accounting/Reports

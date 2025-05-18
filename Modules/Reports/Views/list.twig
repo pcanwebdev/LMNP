@@ -1,0 +1,287 @@
+{% extends "layout.twig" %}
+
+{% block title %}Rapports Financiers{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Rapports</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">Rapports</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Filters and Generate Report -->
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Générer un rapport</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <form method="get" action="/Reports/list" id="filter-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Année fiscale</label>
+                                        <select class="form-control" name="year" id="year-filter">
+                                            {% for y in fiscalYears %}
+                                                <option value="{{ y }}" {% if filter.year == y %}selected{% endif %}>{{ y }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Type de rapport</label>
+                                        <select class="form-control" name="report_type" id="report-type-filter">
+                                            <option value="">Tous les types</option>
+                                            {% for code, label in reportTypes %}
+                                                <option value="{{ code }}" {% if filter.report_type == code %}selected{% endif %}>
+                                                    {{ label }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="get" action="/Reports/generate" id="generate-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Année fiscale</label>
+                                        <select class="form-control" name="year" id="year-generate">
+                                            {% for y in fiscalYears %}
+                                                <option value="{{ y }}" {% if filter.year == y %}selected{% endif %}>{{ y }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Type de rapport</label>
+                                        <select class="form-control" name="report_type" id="report-type-generate">
+                                            {% for code, label in reportTypes %}
+                                                <option value="{{ code }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-file-alt"></i> Générer un rapport
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reports list -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Rapports existants</h3>
+            </div>
+            <div class="card-body">
+                {% if reports|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type de rapport</th>
+                                    <th>Année fiscale</th>
+                                    <th>Date de création</th>
+                                    <th>Statut</th>
+                                    <th style="width: 20%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for report in reports %}
+                                    <tr>
+                                        <td>
+                                            {% if report.report_type == 'income_statement' %}
+                                                Compte de résultat
+                                            {% elseif report.report_type == 'tax_2031' %}
+                                                Déclaration 2031
+                                            {% elseif report.report_type == 'tax_2033A' %}
+                                                Annexe 2033-A
+                                            {% elseif report.report_type == 'balance_sheet' %}
+                                                Bilan
+                                            {% elseif report.report_type == 'custom' %}
+                                                Rapport personnalisé
+                                            {% else %}
+                                                {{ report.report_type }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ report.fiscal_year }}</td>
+                                        <td>{{ report.created_at|date('d/m/Y H:i') }}</td>
+                                        <td>
+                                            {% if report.status == 'completed' %}
+                                                <span class="badge badge-success">Terminé</span>
+                                            {% elseif report.status == 'draft' %}
+                                                <span class="badge badge-warning">Brouillon</span>
+                                            {% elseif report.status == 'processing' %}
+                                                <span class="badge badge-info">En cours</span>
+                                            {% elseif report.status == 'error' %}
+                                                <span class="badge badge-danger">Erreur</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/Reports/view/{{ report.id }}" class="btn btn-sm btn-info" title="Voir">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="/Reports/export/{{ report.id }}?format=pdf" class="btn btn-sm btn-primary" title="Exporter en PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
+                                                <a href="/Reports/export/{{ report.id }}?format=csv" class="btn btn-sm btn-success" title="Exporter en CSV">
+                                                    <i class="fas fa-file-csv"></i>
+                                                </a>
+                                                <a href="/Reports/delete/{{ report.id }}" class="btn btn-sm btn-danger" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info"></i> Aucun rapport</h5>
+                        Aucun rapport ne correspond à vos critères de recherche. Utilisez le formulaire ci-dessus pour générer un nouveau rapport.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Report Types Info -->
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">Types de rapports disponibles</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info"><i class="fas fa-chart-line"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Compte de résultat</span>
+                                <span class="info-box-description">
+                                    Récapitulatif des revenus, dépenses et amortissements pour une année donnée.
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <span class="info-box-icon bg-warning"><i class="fas fa-balance-scale"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Bilan</span>
+                                <span class="info-box-description">
+                                    État de la valeur du patrimoine et des dettes à une date donnée.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-success"><i class="fas fa-file-invoice"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Déclaration 2031</span>
+                                <span class="info-box-description">
+                                    Formulaire fiscal obligatoire pour les loueurs en meublé non professionnels au régime réel.
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger"><i class="fas fa-file-alt"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Annexe 2033-A</span>
+                                <span class="info-box-description">
+                                    Bilan simplifié à joindre à la déclaration fiscale.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-submit filter form when changing select values
+    document.getElementById('year-filter').addEventListener('change', function() {
+        document.getElementById('filter-form').submit();
+    });
+    
+    document.getElementById('report-type-filter').addEventListener('change', function() {
+        document.getElementById('filter-form').submit();
+    });
+    
+    // Confirm before generating a report
+    document.getElementById('generate-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const year = document.getElementById('year-generate').value;
+        const reportType = document.getElementById('report-type-generate').value;
+        let reportTypeLabel = '';
+        
+        // Get report type label
+        switch (reportType) {
+            case 'income_statement':
+                reportTypeLabel = 'Compte de résultat';
+                break;
+            case 'tax_2031':
+                reportTypeLabel = 'Déclaration 2031';
+                break;
+            case 'tax_2033A':
+                reportTypeLabel = 'Annexe 2033-A';
+                break;
+            case 'balance_sheet':
+                reportTypeLabel = 'Bilan';
+                break;
+            case 'custom':
+                reportTypeLabel = 'Rapport personnalisé';
+                break;
+            default:
+                reportTypeLabel = reportType;
+        }
+        
+        if (confirm(`Voulez-vous générer un rapport "${reportTypeLabel}" pour l'année ${year} ?`)) {
+            this.submit();
+        }
+    });
+</script>
+{% endblock %}

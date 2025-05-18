@@ -1,0 +1,246 @@
+{% extends "layout.twig" %}
+
+{% block title %}Gestion des Amortissements{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Amortissements</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Tableau de bord</a></li>
+                    <li class="breadcrumb-item active">Amortissements</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Filters -->
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Filtres</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="get" action="/Depreciation/list">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Bien immobilier</label>
+                                <select class="form-control" name="property_id">
+                                    <option value="">Tous les biens</option>
+                                    {% for property in properties %}
+                                        <option value="{{ property.id }}" {% if filter.property_id == property.id %}selected{% endif %}>
+                                            {{ property.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Année</label>
+                                <select class="form-control" name="year">
+                                    {% for y in range(("now"|date("Y"))-5, ("now"|date("Y"))+5) %}
+                                        <option value="{{ y }}" {% if filter.year == y %}selected{% endif %}>{{ y }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Type de catégorie</label>
+                                <select class="form-control" name="category_type">
+                                    <option value="">Tous les types</option>
+                                    {% for type, label in categoryTypes %}
+                                        <option value="{{ type }}" {% if filter.category_type == type %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Statut</label>
+                                <select class="form-control" name="status">
+                                    <option value="active" {% if filter.status == 'active' %}selected{% endif %}>Actif</option>
+                                    <option value="inactive" {% if filter.status == 'inactive' %}selected{% endif %}>Inactif</option>
+                                    <option value="all" {% if filter.status == 'all' %}selected{% endif %}>Tous</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Filtrer
+                            </button>
+                            <a href="/Depreciation/list" class="btn btn-default">
+                                <i class="fas fa-redo"></i> Réinitialiser
+                            </a>
+                            <a href="/Depreciation/add" class="btn btn-success float-right">
+                                <i class="fas fa-plus"></i> Ajouter un actif
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Summary Card -->
+        <div class="card card-info">
+            <div class="card-header">
+                <h3 class="card-title">Résumé des amortissements pour {{ filter.year }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info">
+                                <i class="fas fa-euro-sign"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Valeur totale</span>
+                                <span class="info-box-number">{{ totalBaseValue|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-success">
+                                <i class="fas fa-calculator"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Amortissement annuel</span>
+                                <span class="info-box-number">{{ totalAnnualDepreciation|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-warning">
+                                <i class="fas fa-history"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Amortissement cumulé</span>
+                                <span class="info-box-number">{{ totalAccumulatedDepreciation|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger">
+                                <i class="fas fa-balance-scale"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Valeur nette comptable</span>
+                                <span class="info-box-number">{{ totalRemaining|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Asset list card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Liste des actifs amortissables</h3>
+            </div>
+            <div class="card-body">
+                {% if assets|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Bien</th>
+                                    <th>Catégorie</th>
+                                    <th>Date d'acquisition</th>
+                                    <th>Durée</th>
+                                    <th>Valeur initiale</th>
+                                    <th>Taux</th>
+                                    <th>Amortissement {{ filter.year }}</th>
+                                    <th>Progression</th>
+                                    <th style="width: 15%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for asset in assets %}
+                                    <tr>
+                                        <td>{{ asset.name }}</td>
+                                        <td>{{ asset.property_name }}</td>
+                                        <td>
+                                            {{ asset.category_name }}
+                                            {% if asset.category_type == 'property' %}
+                                                <span class="badge badge-primary">Bien</span>
+                                            {% elseif asset.category_type == 'furniture' %}
+                                                <span class="badge badge-success">Mobilier</span>
+                                            {% elseif asset.category_type == 'improvement' %}
+                                                <span class="badge badge-warning">Travaux</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ asset.acquisition_date|date('d/m/Y') }}</td>
+                                        <td>{{ asset.duration }} ans</td>
+                                        <td>{{ asset.base_value|number_format(2, ',', ' ') }} €</td>
+                                        <td>{{ asset.rate }} %</td>
+                                        <td>
+                                            {% if asset.entries[0] is defined %}
+                                                {{ asset.entries[0].amount|number_format(2, ',', ' ') }} €
+                                            {% else %}
+                                                {{ (asset.base_value * (asset.rate / 100))|number_format(2, ',', ' ') }} €
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: {{ asset.progress_percentage }}%" 
+                                                     aria-valuenow="{{ asset.progress_percentage }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                    {{ asset.progress_percentage }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/Depreciation/edit/{{ asset.id }}" class="btn btn-sm btn-info" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="/Depreciation/table/{{ asset.id }}" class="btn btn-sm btn-primary" title="Tableau d'amortissement">
+                                                    <i class="fas fa-table"></i>
+                                                </a>
+                                                <a href="/Depreciation/delete/{{ asset.id }}" class="btn btn-sm btn-danger" title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info"></i> Aucun actif</h5>
+                        Aucun actif amortissable ne correspond à vos critères de recherche.
+                        <a href="/Depreciation/add" class="btn btn-success btn-sm ml-2">
+                            <i class="fas fa-plus"></i> Ajouter un actif
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

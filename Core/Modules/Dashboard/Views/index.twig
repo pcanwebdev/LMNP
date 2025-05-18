@@ -1,0 +1,317 @@
+{% extends "layout.twig" %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Tableau de bord</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item active">Tableau de bord</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Widgets d'information -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>{{ propertyCount|default(0) }}</h3>
+                        <p>Biens immobiliers</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <a href="/Properties/list" class="small-box-footer">
+                        Voir tous <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>{{ totalRevenue|default(0)|number_format(2, ',', ' ') }} €</h3>
+                        <p>Revenus (année en cours)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <a href="/Revenues/list" class="small-box-footer">
+                        Voir tous <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>{{ totalExpense|default(0)|number_format(2, ',', ' ') }} €</h3>
+                        <p>Dépenses (année en cours)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <a href="/Expenses/list" class="small-box-footer">
+                        Voir toutes <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>{{ totalDepreciation|default(0)|number_format(2, ',', ' ') }} €</h3>
+                        <p>Amortissements (année en cours)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-chart-area"></i>
+                    </div>
+                    <a href="/Depreciation/list" class="small-box-footer">
+                        Voir tous <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Revenus vs Dépenses (12 derniers mois)</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="revenueExpenseChart" style="height: 250px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Répartition des dépenses</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="expenseCategoryChart" style="height: 250px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Revenus récents</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Bien</th>
+                                        <th>Montant</th>
+                                        <th>Catégorie</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if recentRevenues is defined and recentRevenues|length > 0 %}
+                                        {% for revenue in recentRevenues %}
+                                            <tr>
+                                                <td>{{ revenue.revenue_date|date('d/m/Y') }}</td>
+                                                <td>{{ revenue.property_name }}</td>
+                                                <td class="text-success">{{ revenue.amount|number_format(2, ',', ' ') }} €</td>
+                                                <td>{{ revenue.category }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">Aucun revenu récent</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/Revenues/list" class="btn btn-sm btn-primary">Voir tous les revenus</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Dépenses récentes</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Bien</th>
+                                        <th>Montant</th>
+                                        <th>Catégorie</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if recentExpenses is defined and recentExpenses|length > 0 %}
+                                        {% for expense in recentExpenses %}
+                                            <tr>
+                                                <td>{{ expense.expense_date|date('d/m/Y') }}</td>
+                                                <td>{{ expense.property_name }}</td>
+                                                <td class="text-danger">{{ expense.amount|number_format(2, ',', ' ') }} €</td>
+                                                <td>{{ expense.category }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">Aucune dépense récente</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/Expenses/list" class="btn btn-sm btn-primary">Voir toutes les dépenses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script>
+    // Données pour les graphiques
+    const revenueExpenseData = {
+        labels: {{ chartMonths|default([])|json_encode|raw }},
+        datasets: [
+            {
+                label: 'Revenus',
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1,
+                data: {{ chartRevenues|default([])|json_encode|raw }},
+            },
+            {
+                label: 'Dépenses',
+                backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                borderColor: 'rgba(220, 53, 69, 1)',
+                borderWidth: 1,
+                data: {{ chartExpenses|default([])|json_encode|raw }},
+            }
+        ]
+    };
+
+    const expenseCategoryData = {
+        labels: {{ expenseCategories|default([])|json_encode|raw }},
+        datasets: [
+            {
+                label: 'Montant',
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(199, 199, 199, 0.7)',
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(199, 199, 199, 1)',
+                ],
+                borderWidth: 1,
+                data: {{ expenseAmounts|default([])|json_encode|raw }},
+            }
+        ]
+    };
+
+    // Création des graphiques
+    document.addEventListener('DOMContentLoaded', function() {
+        // Graphique Revenus vs Dépenses
+        const revenueExpenseCtx = document.getElementById('revenueExpenseChart').getContext('2d');
+        new Chart(revenueExpenseCtx, {
+            type: 'bar',
+            data: revenueExpenseData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' €';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Graphique Catégories de dépenses
+        const expenseCategoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
+        new Chart(expenseCategoryCtx, {
+            type: 'pie',
+            data: expenseCategoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: ${value.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
